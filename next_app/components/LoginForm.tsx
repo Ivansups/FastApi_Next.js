@@ -3,11 +3,12 @@
 import { useState } from 'react';
 import { auth } from "@/services/auth";
 import styles from "@/app/login/page.module.css";
+import { useRouter } from 'next/navigation';
 
 export default function LoginForm() {
     const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
     const [loading, setLoading] = useState(false);
-
+    const router = useRouter();
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setLoading(true);
@@ -23,6 +24,7 @@ export default function LoginForm() {
             const response = await auth(credentials);
             if (response.status === 200) {
                 setMessage({ type: 'success', text: response.data.message || 'Login successful' });
+                router.replace('/me');
             } else if (response.status === 401) {
                 setMessage({ type: 'error', text: 'Invalid credentials' });
             } else {
