@@ -8,3 +8,11 @@ export async function auth(credentials:User) {
         }
     throw new Error('Failed to login');
 }
+
+export async function getGeneratedAnswer() {
+    const response = await new Api().getGeneratedAnswer();
+    if (response.status === 200) {
+        return response;
+    }
+    throw new Error('Failed to get generated answer');
+}
