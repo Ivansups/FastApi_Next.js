@@ -2,7 +2,7 @@ from fastapi import Depends, FastAPI, HTTPException
 from authx import AuthX, AuthXConfig
 import os
 from datetime import timedelta
-from .models.user import User
+from models.user import User
 import decouple
 from fastapi.responses import Response
 from fastapi.middleware.cors import CORSMiddleware

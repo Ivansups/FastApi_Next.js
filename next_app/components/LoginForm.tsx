@@ -22,7 +22,7 @@ export default function LoginForm() {
         try {
             const response = await auth(credentials);
             if (response.status === 200) {
-                setMessage({ type: 'success', text: `Welcome ${response.data.username}` });
+                setMessage({ type: 'success', text: response.data.message || 'Login successful' });
             } else if (response.status === 401) {
                 setMessage({ type: 'error', text: 'Invalid credentials' });
             } else {

@@ -1,7 +1,9 @@
 import { User } from "@/types/user";
 
 export default class Api {
-    private baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';    async login(credentials:User) {
+    private baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+    
+    async login(credentials:User) {
         const response = await fetch(`${this.baseUrl}/login`, {
             method: 'POST',
             headers: {
