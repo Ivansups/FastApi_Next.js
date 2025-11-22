@@ -6,13 +6,11 @@ export default class Api {
     async login(credentials:User) {
         const response = await fetch(`${this.baseUrl}/login`, {
             method: 'POST',
-            credentials: 'include', // чтобы куки отправлялись
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify(credentials),
         })
-        console.log('response', response);
         return {
             status: response.status,
             data: await response.json(),
@@ -20,7 +18,7 @@ export default class Api {
         }
     }
 
-    async getProtectedData(token?: string) {
+    async getGeneratedAnswer(token?: string) {
         const headers: HeadersInit = {
             'Content-Type': 'application/json',
         };
@@ -29,9 +27,11 @@ export default class Api {
             headers['Cookie'] = `access_token=${token}`;
         }
         
-        const response = await fetch(`${this.baseUrl}/protected`, {
+        const response = await fetch(`${this.baseUrl}/data`, {
             headers: headers,
-        })        
+        })
+        console.log('response', response);
+        
         let data;
         const contentType = response.headers.get('content-type');
         const isJson = contentType && contentType.includes('application/json');
