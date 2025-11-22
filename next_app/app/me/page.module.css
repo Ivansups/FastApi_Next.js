@@ -1,0 +1,31 @@
+.welcome_page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    padding: 2rem;
+    text-align: center;
+}
+
+.welcome_page h1 {
+    margin: 0;
+    font-size: 2rem;
+    font-weight: 600;
+    color: #333;
+}
+
+.welcome_page p {
+    margin: 0;
+    font-size: 1.1rem;
+    color: #666;
+}
+
+.container {
+    display: flex;
+    min-height: 100vh;
+    align-items: center;
+    justify-content: center;
+    background-color: #fafafa;
+    font-family: system-ui, -apple-system, sans-serif;
+}

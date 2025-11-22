@@ -6,6 +6,7 @@ from models.user import User
 import decouple
 from fastapi.responses import Response
 from fastapi.middleware.cors import CORSMiddleware
+from business.generate_data import generate_data
 app = FastAPI()
 
 app.add_middleware(
@@ -16,6 +17,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+generated_data = [generate_data() for _ in range(100)]
 
 config = AuthXConfig()
 config.JWT_SECRET_KEY = decouple.config("SECRET_KEY")
@@ -42,4 +44,11 @@ async def protected(current_user = Depends(security.access_token_required)):
     return {
         "message": "Protected route",
         "user": current_user
+    }
+
+@app.get("/data")
+def get_data(current_user = Depends(security.access_token_required)):
+    return {
+        "message": "Data fetched successfully",
+        "data": generated_data
     }
