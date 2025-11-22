@@ -54,41 +54,4 @@ export default class Api {
             ok: response.ok,
         }
     }
-
-    async getGeneratedAnswer(token?: string) {
-        const headers: HeadersInit = {
-            'Content-Type': 'application/json',
-        };
-        
-        if (token) {
-            headers['Cookie'] = `access_token=${token}`;
-        }
-        
-        const response = await fetch(`${this.baseUrl}/data`, {
-            headers: headers,
-        })
-        console.log('response', response);
-        
-        let data;
-        const contentType = response.headers.get('content-type');
-        const isJson = contentType && contentType.includes('application/json');
-        
-        if (isJson) {
-            try {
-                data = await response.json();
-            } catch (error) {
-                const text = await response.text();
-                data = { error: text || 'Invalid JSON response' };
-            }
-        } else {
-            const text = await response.text();
-            data = { error: text || 'Unknown error' };
-        }
-        
-        return {
-            status: response.status,
-            data: data,
-            ok: response.ok,
-        }
-    }
 }
