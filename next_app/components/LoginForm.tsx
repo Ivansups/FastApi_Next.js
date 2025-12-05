@@ -40,26 +40,26 @@ export default function LoginForm() {
     return (
         <>
             {message && (
-                <div className={`${styles.message} ${message.type === 'success' ? styles.success : styles.error}`}>
+                <div className={`${styles['login-page__message']} ${message.type === 'success' ? styles['login-page__message--success'] : styles['login-page__message--error']}`}>
                     {message.text}
                 </div>
             )}
-            <form onSubmit={handleSubmit} className={styles.form}>
+            <form onSubmit={handleSubmit} className={styles['login-page__form']}>
                 <input 
                     type="text" 
                     name="username" 
                     placeholder="Username" 
-                    className={styles.input}
+                    className={styles['login-page__input']}
                     disabled={loading}
                 />
                 <input 
                     type="password" 
                     name="password" 
                     placeholder="Password" 
-                    className={styles.input}
+                    className={styles['login-page__input']}
                     disabled={loading}
                 />
-                <button type="submit" className={styles.button} disabled={loading}>
+                <button type="submit" className={styles['login-page__button']} disabled={loading}>
                     {loading ? 'Loading...' : 'Login'}
                 </button>
             </form>

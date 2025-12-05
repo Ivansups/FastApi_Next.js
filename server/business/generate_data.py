@@ -1,6 +1,6 @@
 import math
 import random
-from models.generated_answ import GeneratedAnswer
+from server.models.generated_answ import GeneratedAnswer
 import string
 def generate_data() -> GeneratedAnswer:
     keys = [''.join(random.choices(string.ascii_letters + string.digits, k=8))]

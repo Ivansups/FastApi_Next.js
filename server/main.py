@@ -1,14 +1,53 @@
-from fastapi import Depends, FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException, Query, Request, status
+from fastapi.responses import JSONResponse
 from authx import AuthX, AuthXConfig
+from authx.exceptions import (
+    JWTDecodeError, 
+    TokenError, 
+    TokenRequiredError,
+    MissingTokenError,
+    InvalidToken,
+    AuthXException
+)
 import os
 from datetime import timedelta
-from models.user import User
 import decouple
 from fastapi.responses import Response
 from fastapi.middleware.cors import CORSMiddleware
-from business.generate_data import generate_data
+from server.models.user import User
+from server.business.generate_data import generate_data
 import uuid
+
 app = FastAPI()
+
+@app.exception_handler(JWTDecodeError)
+@app.exception_handler(TokenError)
+@app.exception_handler(TokenRequiredError)
+@app.exception_handler(MissingTokenError)
+@app.exception_handler(InvalidToken)
+@app.exception_handler(AuthXException)
+async def auth_exception_handler(request: Request, exc: AuthXException):
+    """Обработка ошибок аутентификации - возвращает понятные сообщения вместо трейсбеков"""
+    error_message = str(exc).lower()
+    
+    # Определяем тип ошибки и возвращаем понятное сообщение
+    if "expired" in error_message or "exp" in error_message:
+        detail = "Токен доступа истёк. Пожалуйста, войдите в систему снова."
+    elif "missing" in error_message or "required" in error_message:
+        detail = "Токен доступа отсутствует. Пожалуйста, войдите в систему."
+    elif "invalid" in error_message or "decode" in error_message:
+        detail = "Недействительный токен доступа. Пожалуйста, войдите в систему."
+    else:
+        detail = "Ошибка аутентификации. Пожалуйста, войдите в систему."
+    
+    return JSONResponse(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        content={
+            "error": "Authentication Error",
+            "detail": detail,
+            "type": "auth_error"
+        }
+    )
 
 app.add_middleware(
     CORSMiddleware,
@@ -65,8 +104,32 @@ async def protected(current_user = Depends(security.access_token_required)):
     }
 
 @app.get("/data")
-def get_data(current_user = Depends(security.access_token_required)):
+def get_data(
+    page: int = Query(1, ge=1, description="Номер страницы (начинается с 1)"),
+    limit: int = Query(10, ge=1, le=100, description="Количество элементов на странице (максимум 100)"),
+    current_user = Depends(security.access_token_required)
+):
+    total = len(generated_data)
+    total_pages = (total + limit - 1) // limit if total > 0 else 0
+    
+    if page > total_pages and total_pages > 0:
+        raise HTTPException(
+            status_code=404, 
+            detail=f"Страница {page} не найдена. Всего страниц: {total_pages}"
+        )
+    
+    start = (page - 1) * limit
+    end = start + limit
+    paginated_data = generated_data[start:end]
+    
     return {
-        "message": "Data fetched successfully",
-        "data": generated_data
+        "data": paginated_data,
+        "pagination": {
+            "page": page,
+            "limit": limit,
+            "total": total,
+            "totalPages": total_pages,
+            "hasNext": page < total_pages,
+            "hasPrev": page > 1
+        }
     }

@@ -1,4 +1,8 @@
 ```bash
-source env/bin/activate
+source server/venv/bin/activate
 uvicorn server.main:app --host 0.0.0.0 --port 8000 --reload
+```
+
+```bash
+pnpm run dev
 ```

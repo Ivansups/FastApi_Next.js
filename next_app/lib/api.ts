@@ -55,7 +55,7 @@ export default class Api {
         }
     }
 
-    async getGeneratedAnswer(token?: string) {
+    async getData(page: number = 1, limit: number = 10, token?: string) {
         const headers: HeadersInit = {
             'Content-Type': 'application/json',
         };
@@ -64,10 +64,15 @@ export default class Api {
             headers['Cookie'] = `access_token=${token}`;
         }
         
-        const response = await fetch(`${this.baseUrl}/data`, {
+        const url = new URL(`${this.baseUrl}/data`);
+        url.searchParams.set('page', page.toString());
+        url.searchParams.set('limit', limit.toString());
+        
+        const response = await fetch(url.toString(), {
+            method: 'GET',
+            credentials: 'include',
             headers: headers,
-        })
-        console.log('response', response);
+        });
         
         let data;
         const contentType = response.headers.get('content-type');
@@ -78,11 +83,17 @@ export default class Api {
                 data = await response.json();
             } catch (error) {
                 const text = await response.text();
-                data = { error: text || 'Invalid JSON response' };
+                data = { 
+                    error: text || 'Invalid JSON response',
+                    detail: text || 'Invalid JSON response'
+                };
             }
         } else {
             const text = await response.text();
-            data = { error: text || 'Unknown error' };
+            data = { 
+                error: text || 'Unknown error',
+                detail: text || 'Unknown error'
+            };
         }
         
         return {
