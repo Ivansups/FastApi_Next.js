@@ -118,6 +118,7 @@ export default function Chat({ token }: { token?: string }) {
     try {
       wsRef.current.send(
         JSON.stringify({
+          type: 'message',
           message: inputMessage.trim(),
         })
       );

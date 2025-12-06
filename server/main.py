@@ -10,7 +10,7 @@ from authx.exceptions import (
     AuthXException
 )
 import os
-from datetime import timedelta
+from datetime import timedelta, datetime
 import decouple
 from fastapi.responses import Response
 from fastapi.middleware.cors import CORSMiddleware
@@ -81,7 +81,7 @@ def main_func():
 def login(credentials: User, response: Response):
     if credentials.username == "1" and credentials.password == "1":
         user_id = str(uuid.uuid4()) # ПРОСТО ИМИТАЦИЯ, В РЕАЛЬНОМ ПРОЕКТЕ ТУТ БУДЕТ ПОЛЬЗОВАТЕЛЬСКИЙ ID
-        token = security.create_access_token(uid=user_id)
+        token = security.create_access_token(uid=user_id, additional_claims={"username": credentials.username})
         response.set_cookie(
             config.JWT_ACCESS_COOKIE_NAME, 
             token,
@@ -146,15 +146,21 @@ async def websocket_endpoint(websocket: WebSocket):
     WebSocket endpoint с аутентификацией и обработкой сообщений
     
     Поддерживаемые типы сообщений:
-    - "message" - отправка сообщения всем пользователям (требует поле "content" или "message")
+    - "message" - отправка сообщения всем пользователям (требует поле "message")
     - "ping" - проверка соединения (ответ "pong")
+    - "clear" - очистка истории чата для всех пользователей
     - "disconnect" - отключение от сервера
     """
-    user_id = await get_websocket_auth(websocket, security)
-    if not user_id:
+    await websocket.accept()
+    
+    auth_data = await get_websocket_auth(websocket, security)
+    if not auth_data:
         return
-
-    await websocket_manager.connect(websocket, user_id)
+    
+    user_id = auth_data["user_id"]
+    username = auth_data["username"]
+    
+    await websocket_manager.connect(websocket, user_id, username)
 
     try:
         while True:
@@ -164,15 +170,29 @@ async def websocket_endpoint(websocket: WebSocket):
             
             if message_type == "message":
                 content = message.get("content") or message.get("message", "")
-                await websocket_manager.send_message_to_all(
-                    f"User {user_id}: {content}"
-                )
+                if content:
+                    await websocket_manager.send_message_to_all(
+                        content,
+                        user_id,
+                        username
+                    )
+                    await websocket.send_json({
+                        "type": "message",
+                        "message": content,
+                        "sender_id": user_id,
+                        "sender_username": username,
+                        "is_self": True,
+                        "timestamp": datetime.now().isoformat()
+                    })
                 
             elif message_type == "ping":
                 await websocket.send_json({
                     "type": "pong",
                     "timestamp": message.get("timestamp")
                 })
+                
+            elif message_type == "clear":
+                await websocket_manager.clear_history(user_id, username)
                 
             elif message_type == "disconnect":
                 break
@@ -181,7 +201,7 @@ async def websocket_endpoint(websocket: WebSocket):
                 await websocket.send_json({
                     "type": "error",
                     "message": f"Unknown message type: {message_type}",
-                    "supported_types": ["message", "ping", "disconnect"]
+                    "supported_types": ["message", "ping", "clear", "disconnect"]
                 })
 
     except WebSocketDisconnect:

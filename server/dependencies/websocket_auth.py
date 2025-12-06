@@ -7,6 +7,7 @@ import decouple
 
 async def get_websocket_auth(
     websocket: WebSocket,
+    security: any = None,
 ) -> Optional[Dict[str, str]]:
     """Аутентификация WebSocket соединения через токен из cookies или query параметра
     Возвращает словарь с user_id и username"""

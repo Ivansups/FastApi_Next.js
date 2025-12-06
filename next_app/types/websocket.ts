@@ -1,5 +1,5 @@
 export interface WebSocketMessage {
-    type: 'connection' | 'message' | 'error' | 'pong' | 'history';
+    type: 'connection' | 'message' | 'error' | 'pong' | 'history' | 'clear_history';
     status?: 'authenticated' | 'disconnected';
     user_id?: string;
     username?: string;
@@ -8,11 +8,13 @@ export interface WebSocketMessage {
     message?: string;
     is_self?: boolean;
     timestamp?: string;
+    cleared_by?: string;
+    cleared_by_id?: string;
     messages?: Array<{
-    message: string;
-    sender_id: string;
-    sender_username: string;
-    timestamp: string;
+        message: string;
+        sender_id: string;
+        sender_username: string;
+        timestamp: string;
     }>;
 }  
 export interface ChatMessage {
