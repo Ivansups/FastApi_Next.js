@@ -99,7 +99,7 @@ export default class Api {
         return {
             status: response.status,
             data: data,
-            ok: response.ok,
-        }
+                ok: response.ok,
+            }
     }
 }

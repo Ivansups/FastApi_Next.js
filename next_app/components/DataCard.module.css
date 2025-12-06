@@ -1,0 +1,84 @@
+.data-card {
+    background: rgba(255, 255, 255, 0.05) !important;
+    backdrop-filter: blur(20px) !important;
+    border: 1px solid rgba(139, 92, 246, 0.3) !important;
+    border-radius: 16px !important;
+    padding: 2rem !important;
+    box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.3),
+        0 0 0 1px rgba(139, 92, 246, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    position: relative !important;
+    overflow: hidden !important;
+    flex: 0 0 calc(33.333% - 1rem) !important;
+    min-width: 280px !important;
+    max-width: 400px !important;
+    width: auto !important;
+}
+
+.data-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #8b5cf6 0%, #a78bfa 50%, #c4b5fd 100%);
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+}
+
+.data-card:hover {
+    transform: translateY(-4px) !important;
+    box-shadow: 
+        0 12px 32px rgba(139, 92, 246, 0.4),
+        0 0 40px rgba(139, 92, 246, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+    border-color: rgba(139, 92, 246, 0.6) !important;
+}
+
+.data-card:hover::before {
+    transform: scaleX(1);
+}
+
+.data-card__key,
+.data-card__value {
+    margin-bottom: 1rem !important;
+    color: #e9d5ff !important;
+    font-size: 0.95rem !important;
+    line-height: 1.6 !important;
+}
+
+.data-card__key:last-child,
+.data-card__value:last-child {
+    margin-bottom: 0;
+}
+
+.data-card__key strong,
+.data-card__value strong {
+    color: #a78bfa !important;
+    margin-right: 0.75rem !important;
+    font-weight: 600 !important;
+    display: inline-block !important;
+    min-width: 80px !important;
+    text-shadow: 0 0 10px rgba(167, 139, 250, 0.5) !important;
+}
+
+.data-card__key {
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace !important;
+    font-size: 0.9rem !important;
+    color: #c4b5fd !important;
+    background: rgba(139, 92, 246, 0.1) !important;
+    padding: 0.5rem 0.75rem !important;
+    border-radius: 6px !important;
+    border-left: 3px solid #8b5cf6 !important;
+    box-shadow: 0 0 10px rgba(139, 92, 246, 0.2) !important;
+}
+
+.data-card__value {
+    font-size: 1.1rem !important;
+    font-weight: 600 !important;
+    color: #e9d5ff !important;
+}
+

@@ -13,6 +13,17 @@
   --foreground: #e9d5ff;
   --glass-bg: rgba(255, 255, 255, 0.05);
   --glass-border: rgba(255, 255, 255, 0.1);
+  
+  /* Для shadcn/ui совместимость */
+  --primary: 139 92 246;
+  --primary-foreground: 15 12 41;
+  --secondary: 167 139 250;
+  --secondary-foreground: 15 12 41;
+  --muted: 196 181 253;
+  --muted-foreground: 233 213 255;
+  --accent: 139 92 246;
+  --accent-foreground: 15 12 41;
+  --radius: 0.5rem;
 }
 
 html,
@@ -44,17 +55,6 @@ a {
 
 html {
   color-scheme: dark;
-}
-
-@keyframes pulse {
-  0%, 100% { 
-    transform: scale(1); 
-    opacity: 0.5; 
-  }
-  50% { 
-    transform: scale(1.1); 
-    opacity: 0.8; 
-  }
 }
 
 /* ===== ГЛОБАЛЬНЫЕ СТИЛИ ДЛЯ ПЕРЕИСПОЛЬЗОВАНИЯ ===== */

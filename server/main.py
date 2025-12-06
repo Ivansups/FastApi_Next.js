@@ -17,6 +17,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from server.models.user import User
 from server.business.generate_data import generate_data
 import uuid
+from fastapi import WebSocket, WebSocketDisconnect
+from server.dependencies.websocket_auth import get_websocket_auth
+from server.clases.WebSocketManager import WebSocketManager
 
 app = FastAPI()
 
@@ -66,6 +69,9 @@ config.JWT_ACCESS_COOKIE_NAME = "access_token"
 config.JWT_TOKEN_LOCATION = ["cookies", "headers"]
 
 security = AuthX(config=config)
+
+# Создаем единственный экземпляр WebSocketManager для всего приложения
+websocket_manager = WebSocketManager()
 
 @app.get("/")
 def main_func():
@@ -133,3 +139,54 @@ def get_data(
             "hasPrev": page > 1
         }
     }
+
+@app.websocket("/ws")
+async def websocket_endpoint(websocket: WebSocket):
+    """
+    WebSocket endpoint с аутентификацией и обработкой сообщений
+    
+    Поддерживаемые типы сообщений:
+    - "message" - отправка сообщения всем пользователям (требует поле "content" или "message")
+    - "ping" - проверка соединения (ответ "pong")
+    - "disconnect" - отключение от сервера
+    """
+    user_id = await get_websocket_auth(websocket, security)
+    if not user_id:
+        return
+
+    await websocket_manager.connect(websocket, user_id)
+
+    try:
+        while True:
+            message = await websocket.receive_json()
+            
+            message_type = message.get("type")
+            
+            if message_type == "message":
+                content = message.get("content") or message.get("message", "")
+                await websocket_manager.send_message_to_all(
+                    f"User {user_id}: {content}"
+                )
+                
+            elif message_type == "ping":
+                await websocket.send_json({
+                    "type": "pong",
+                    "timestamp": message.get("timestamp")
+                })
+                
+            elif message_type == "disconnect":
+                break
+                
+            else:
+                await websocket.send_json({
+                    "type": "error",
+                    "message": f"Unknown message type: {message_type}",
+                    "supported_types": ["message", "ping", "disconnect"]
+                })
+
+    except WebSocketDisconnect:
+        pass
+    except Exception as e:
+        print(f"WebSocket error for user {user_id}: {e}")
+    finally:
+        await websocket_manager.disconnect(websocket)

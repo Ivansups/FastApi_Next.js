@@ -1,3 +1,4 @@
+import styles from "./page.module.css";
 import { getData } from "@/services/data";
 import Link from "next/link";
 import { cookies } from "next/headers";
@@ -24,38 +25,36 @@ export default async function DataPage({ searchParams }: DataPageProps) {
             const { data, pagination } = response.data;
             
             return (
-                <div className="flex flex-col min-h-screen py-12 px-8 max-w-5xl mx-auto bg-gradient-purple bg-fixed font-['Inter',system-ui,-apple-system,BlinkMacSystemFont,'Segoe_UI',Roboto,sans-serif] text-foreground relative items-center justify-start" data-theme="light">
+                <div className={styles['data-page']} data-theme="light">
                     <BackButton href="/me" />
-                    <div className="flex flex-col items-center w-full max-w-full mb-8">
-                        <h1 className="text-center mx-auto mb-10 text-4xl font-bold tracking-tight bg-gradient-text bg-clip-text text-transparent w-full drop-shadow-[0_0_30px_rgba(139,92,246,0.5)]">
-                            Данные
-                        </h1>
+                    <div className={styles['data-page__content']}>
+                        <h1 className={styles['data-page__title']}>Данные</h1>
                         
-                        <div className="text-center mx-auto mb-8 text-purple-light text-base px-6 py-3 bg-white/5 border border-purple-primary/30 rounded-xl backdrop-blur-glass shadow-glass block w-fit font-medium">
-                            <p className="text-purple-light m-0">
-                                Страница {pagination.page} из {pagination.totalPages} (Всего элементов: {pagination.total})
+                        <div className={styles['data-page__pagination-info']}>
+                            <p>
+                                Всего элементов: {pagination.total}
                             </p>
                         </div>
                         
                         {/* Навигация по страницам */}
-                        <div className="flex justify-center items-center gap-6 mx-auto mb-12 px-6 py-6 bg-white/5 border border-purple-primary/30 rounded-2xl backdrop-blur-glass shadow-glass flex-wrap w-fit">
+                        <div className={styles['data-page__pagination']}>
                             {pagination.hasPrev && (
                                 <Link 
                                     href={`/data?page=${page - 1}&limit=${limit}`}
-                                    className="inline-flex items-center justify-center py-3.5 px-8 rounded-xl border border-purple-primary/30 bg-gradient-button text-background no-underline font-semibold text-[0.95rem] transition-all duration-300 shadow-purple-glow relative overflow-hidden uppercase tracking-wide hover:-translate-y-0.5 hover:shadow-purple-glow-hover hover:bg-gradient-to-br hover:from-purple-secondary hover:via-purple-light hover:to-[#ddd6fe] hover:border-purple-primary/60"
+                                    className={styles['data-page__pagination-button']}
                                 >
                                     ← Предыдущая
                                 </Link>
                             )}
                             
-                            <span className="py-3.5 px-6 text-purple-light font-semibold text-[0.95rem] bg-purple-primary/10 rounded-[10px] border border-purple-primary/30">
+                            <span className={styles['data-page__page-info']}>
                                 Страница {pagination.page} / {pagination.totalPages}
                             </span>
                             
                             {pagination.hasNext && (
                                 <Link 
                                     href={`/data?page=${page + 1}&limit=${limit}`}
-                                    className="inline-flex items-center justify-center py-3.5 px-8 rounded-xl border border-purple-primary/30 bg-gradient-button text-background no-underline font-semibold text-[0.95rem] transition-all duration-300 shadow-purple-glow relative overflow-hidden uppercase tracking-wide hover:-translate-y-0.5 hover:shadow-purple-glow-hover hover:bg-gradient-to-br hover:from-purple-secondary hover:via-purple-light hover:to-[#ddd6fe] hover:border-purple-primary/60"
+                                    className={styles['data-page__pagination-button']}
                                 >
                                     Следующая →
                                 </Link>
@@ -63,13 +62,13 @@ export default async function DataPage({ searchParams }: DataPageProps) {
                         </div>
                         
                         {/* Список данных */}
-                        <div className="flex flex-row flex-wrap gap-6 mx-auto mt-4 w-full justify-center">
+                        <div className={styles['data-page__list']}>
                             {data && data.length > 0 ? (
                                 data.map((item: any, index: number) => (
                                     <DataCard key={index} data={item} index={index} />
                                 ))
                             ) : (
-                                <p className="text-foreground">Нет данных для отображения</p>
+                                <p>Нет данных для отображения</p>
                             )}
                         </div>
                     </div>
@@ -86,19 +85,19 @@ export default async function DataPage({ searchParams }: DataPageProps) {
         }
         
         return (
-            <div className="flex flex-col min-h-screen py-12 px-8 max-w-5xl mx-auto bg-gradient-purple bg-fixed font-['Inter',system-ui,-apple-system,BlinkMacSystemFont,'Segoe_UI',Roboto,sans-serif] text-foreground relative items-center justify-start">
+            <div className={styles['data-page']}>
                 <BackButton href="/me" />
-                <h1 className="text-4xl font-bold text-foreground">Ошибка</h1>
-                <p className="text-foreground">{error instanceof Error ? error.message : 'Не удалось загрузить данные'}</p>
+                <h1>Ошибка</h1>
+                <p>{error instanceof Error ? error.message : 'Не удалось загрузить данные'}</p>
             </div>
         );
     }
     
     return (
-        <div className="flex flex-col min-h-screen py-12 px-8 max-w-5xl mx-auto bg-gradient-purple bg-fixed font-['Inter',system-ui,-apple-system,BlinkMacSystemFont,'Segoe_UI',Roboto,sans-serif] text-foreground relative items-center justify-start">
+        <div className={styles['data-page']}>
             <BackButton href="/me" />
-            <h1 className="text-4xl font-bold text-foreground">Ошибка</h1>
-            <p className="text-foreground">Не удалось загрузить данные</p>
+            <h1>Ошибка</h1>
+            <p>Не удалось загрузить данные</p>
         </div>
     );
 }

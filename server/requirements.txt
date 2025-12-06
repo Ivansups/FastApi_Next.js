@@ -22,7 +22,8 @@ python-decouple==3.8
 # asyncpg==0.29.0  # for PostgreSQL
 # aiomysql==0.2.0  # for MySQL
 
-# Optional: Redis for caching/sessions
-# redis==5.1.1
-# hiredis==2.3.2
+# WebSocket support
+redis==7.1.0
+aioredis==2.0.1
+python-socketio==5.15.0
 
