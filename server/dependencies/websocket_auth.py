@@ -1,34 +1,54 @@
-from typing import Optional
+from typing import Optional, Dict
 from fastapi import WebSocket
 from authx.exceptions import AuthXException
-from authx import AuthX
+from jose import jwt
+import decouple
+
 
 async def get_websocket_auth(
     websocket: WebSocket,
-    security: AuthX,
-) -> Optional[str]:
-
+) -> Optional[Dict[str, str]]:
+    """Аутентификация WebSocket соединения через токен из cookies или query параметра
+    Возвращает словарь с user_id и username"""
     try:
+        secret_key = decouple.config("SECRET_KEY")
+        
         token = websocket.cookies.get("access_token")
-
+        token_source = "cookies"
+        
         if not token:
-            await websocket.close(code=1008, reason="Unauthorized")
+            query_params = dict(websocket.query_params)
+            token = query_params.get("token")
+            token_source = "query"
+        
+        if not token:
+            print("WebSocket auth: No token found in cookies or query")
+            await websocket.close(code=1008, reason="Unauthorized: No token")
             return None
 
-        payload = security.decode_token(token)
+        print(f"WebSocket auth: Token found in {token_source}")
+        
+        payload = jwt.decode(token, secret_key, algorithms=["HS256"])
         user_id = payload.get("sub") or payload.get("uid")
+        username = payload.get("username") or f"User_{user_id[:8]}" if user_id else "Unknown"
 
         if not user_id:
-            await websocket.close(code=1008, reason="Unauthorized")
+            print(f"WebSocket auth: Invalid user_id in token payload: {payload}")
+            await websocket.close(code=1008, reason="Unauthorized: Invalid user")
             return None
 
-        return user_id
+        print(f"WebSocket auth: Authenticated user_id: {user_id}, username: {username}")
+        return {"user_id": user_id, "username": username}
 
-    except AuthXException as e:
-        # Токен невалидный или истек
+    except jwt.ExpiredSignatureError:
+        print("WebSocket auth: Token expired")
+        await websocket.close(code=1008, reason="Token expired")
+        return None
+    except jwt.JWTError as e:
+        print(f"WebSocket auth: JWTError: {str(e)}")
         await websocket.close(code=1008, reason=f"Invalid token: {str(e)}")
         return None
     except Exception as e:
-        # Другая ошибка
+        print(f"WebSocket auth: Exception: {str(e)}")
         await websocket.close(code=1011, reason=f"Authentication error: {str(e)}")
         return None

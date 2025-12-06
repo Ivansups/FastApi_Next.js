@@ -132,6 +132,22 @@
     transform: translateY(0);
 }
 
+.data-page__pagination-button--disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: rgba(139, 92, 246, 0.2) !important;
+    border-color: rgba(139, 92, 246, 0.2) !important;
+    box-shadow: none !important;
+    pointer-events: none;
+}
+
+.data-page__pagination-button--disabled:hover {
+    transform: none !important;
+    box-shadow: none !important;
+    background: rgba(139, 92, 246, 0.2) !important;
+    border-color: rgba(139, 92, 246, 0.2) !important;
+}
+
 .data-page__page-info {
     padding: 0.875rem 1.5rem;
     color: var(--purple-light);

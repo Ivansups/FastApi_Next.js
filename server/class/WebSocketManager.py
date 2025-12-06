@@ -1,4 +1,5 @@
 from fastapi import WebSocket
+from authx.config import AuthXConfig
 from typing import Dict
 
 class WebSocketManager:

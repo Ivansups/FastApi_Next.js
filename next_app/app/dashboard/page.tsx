@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
-import StatsChart from '@/components/StatsChart';
+// import StatsChart from '@/components/StatsChart'; // Временно отключено - требуется установка recharts
 import BackButton from '@/components/BackButton';
 import styles from './page.module.css';
 
@@ -72,7 +72,13 @@ export default function DashboardPage() {
             <CardTitle>Динамика продаж</CardTitle>
           </CardHeader>
           <CardContent>
-            <StatsChart data={lineData} type="line" dataKey="value" />
+            <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--purple-light)' }}>
+              <p>Для отображения графиков установите recharts:</p>
+              <code style={{ display: 'block', marginTop: '1rem', padding: '0.5rem', background: 'rgba(139, 92, 246, 0.1)', borderRadius: '8px' }}>
+                npm install recharts
+              </code>
+            </div>
+            {/* <StatsChart data={lineData} type="line" dataKey="value" /> */}
           </CardContent>
         </Card>
 
@@ -81,7 +87,10 @@ export default function DashboardPage() {
             <CardTitle>Активность по дням</CardTitle>
           </CardHeader>
           <CardContent>
-            <StatsChart data={barData} type="bar" dataKey="value" />
+            <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--purple-light)' }}>
+              <p>График будет отображаться после установки recharts</p>
+            </div>
+            {/* <StatsChart data={barData} type="bar" dataKey="value" /> */}
           </CardContent>
         </Card>
 
@@ -90,7 +99,10 @@ export default function DashboardPage() {
             <CardTitle>Распределение</CardTitle>
           </CardHeader>
           <CardContent>
-            <StatsChart data={pieData} type="pie" dataKey="value" />
+            <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--purple-light)' }}>
+              <p>График будет отображаться после установки recharts</p>
+            </div>
+            {/* <StatsChart data={pieData} type="pie" dataKey="value" /> */}
           </CardContent>
         </Card>
       </div>

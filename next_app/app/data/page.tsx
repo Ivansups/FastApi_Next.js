@@ -38,26 +38,34 @@ export default async function DataPage({ searchParams }: DataPageProps) {
                         
                         {/* Навигация по страницам */}
                         <div className={styles['data-page__pagination']}>
-                            {pagination.hasPrev && (
+                            {pagination.hasPrev ? (
                                 <Link 
                                     href={`/data?page=${page - 1}&limit=${limit}`}
                                     className={styles['data-page__pagination-button']}
                                 >
                                     ← Предыдущая
                                 </Link>
+                            ) : (
+                                <span className={`${styles['data-page__pagination-button']} ${styles['data-page__pagination-button--disabled']}`}>
+                                    ← Предыдущая
+                                </span>
                             )}
                             
                             <span className={styles['data-page__page-info']}>
                                 Страница {pagination.page} / {pagination.totalPages}
                             </span>
                             
-                            {pagination.hasNext && (
+                            {pagination.hasNext ? (
                                 <Link 
                                     href={`/data?page=${page + 1}&limit=${limit}`}
                                     className={styles['data-page__pagination-button']}
                                 >
                                     Следующая →
                                 </Link>
+                            ) : (
+                                <span className={`${styles['data-page__pagination-button']} ${styles['data-page__pagination-button--disabled']}`}>
+                                    Следующая →
+                                </span>
                             )}
                         </div>
                         
