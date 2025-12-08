@@ -1,25 +1,33 @@
-from fastapi import Depends, FastAPI, HTTPException, Query, Request, status
-from fastapi.responses import JSONResponse
+import uuid
+from datetime import datetime, timedelta
+
+import decouple
 from authx import AuthX, AuthXConfig
 from authx.exceptions import (
-    JWTDecodeError, 
-    TokenError, 
-    TokenRequiredError,
-    MissingTokenError,
+    AuthXException,
     InvalidToken,
-    AuthXException
+    JWTDecodeError,
+    MissingTokenError,
+    TokenError,
+    TokenRequiredError,
 )
-import os
-from datetime import timedelta, datetime
-import decouple
-from fastapi.responses import Response
+from fastapi import (
+    Depends,
+    FastAPI,
+    HTTPException,
+    Query,
+    Request,
+    WebSocket,
+    WebSocketDisconnect,
+    status,
+)
 from fastapi.middleware.cors import CORSMiddleware
-from server.models.user import User
+from fastapi.responses import JSONResponse, Response
+
 from server.business.generate_data import generate_data
-import uuid
-from fastapi import WebSocket, WebSocketDisconnect
-from server.dependencies.websocket_auth import get_websocket_auth
 from server.clases.WebSocketManager import WebSocketManager
+from server.dependencies.websocket_auth import get_websocket_auth
+from server.models.user import User
 
 app = FastAPI()
 
@@ -32,7 +40,7 @@ app = FastAPI()
 async def auth_exception_handler(request: Request, exc: AuthXException):
     """Обработка ошибок аутентификации - возвращает понятные сообщения вместо трейсбеков"""
     error_message = str(exc).lower()
-    
+
     # Определяем тип ошибки и возвращаем понятное сообщение
     if "expired" in error_message or "exp" in error_message:
         detail = "Токен доступа истёк. Пожалуйста, войдите в систему снова."
@@ -42,7 +50,7 @@ async def auth_exception_handler(request: Request, exc: AuthXException):
         detail = "Недействительный токен доступа. Пожалуйста, войдите в систему."
     else:
         detail = "Ошибка аутентификации. Пожалуйста, войдите в систему."
-    
+
     return JSONResponse(
         status_code=status.HTTP_401_UNAUTHORIZED,
         content={
@@ -80,10 +88,13 @@ def main_func():
 @app.post("/login")
 def login(credentials: User, response: Response):
     if credentials.username == "1" and credentials.password == "1":
-        user_id = str(uuid.uuid4()) # ПРОСТО ИМИТАЦИЯ, В РЕАЛЬНОМ ПРОЕКТЕ ТУТ БУДЕТ ПОЛЬЗОВАТЕЛЬСКИЙ ID
-        token = security.create_access_token(uid=user_id, additional_claims={"username": credentials.username})
+        # ПРОСТО ИМИТАЦИЯ, В РЕАЛЬНОМ ПРОЕКТЕ ТУТ БУДЕТ ПОЛЬЗОВАТЕЛЬСКИЙ ID
+        user_id = str(uuid.uuid4())
+        token = security.create_access_token(
+            uid=user_id, additional_claims={"username": credentials.username}
+        )
         response.set_cookie(
-            config.JWT_ACCESS_COOKIE_NAME, 
+            config.JWT_ACCESS_COOKIE_NAME,
             token,
             httponly=True,  # Защита от XSS
             samesite='lax',  # Для работы с CORS
@@ -103,7 +114,7 @@ async def protected(current_user = Depends(security.access_token_required)):
         user_id = current_user.uid
     else:
         user_id = str(current_user) if current_user else 'unknown'
-    
+
     return {
         "message": "Protected route",
         "user": user_id
@@ -112,22 +123,24 @@ async def protected(current_user = Depends(security.access_token_required)):
 @app.get("/data")
 def get_data(
     page: int = Query(1, ge=1, description="Номер страницы (начинается с 1)"),
-    limit: int = Query(10, ge=1, le=100, description="Количество элементов на странице (максимум 100)"),
+    limit: int = Query(
+        10, ge=1, le=100, description="Количество элементов на странице (максимум 100)"
+    ),
     current_user = Depends(security.access_token_required)
 ):
     total = len(generated_data)
     total_pages = (total + limit - 1) // limit if total > 0 else 0
-    
+
     if page > total_pages and total_pages > 0:
         raise HTTPException(
-            status_code=404, 
+            status_code=404,
             detail=f"Страница {page} не найдена. Всего страниц: {total_pages}"
         )
-    
+
     start = (page - 1) * limit
     end = start + limit
     paginated_data = generated_data[start:end]
-    
+
     return {
         "data": paginated_data,
         "pagination": {
@@ -144,7 +157,7 @@ def get_data(
 async def websocket_endpoint(websocket: WebSocket):
     """
     WebSocket endpoint с аутентификацией и обработкой сообщений
-    
+
     Поддерживаемые типы сообщений:
     - "message" - отправка сообщения всем пользователям (требует поле "message")
     - "ping" - проверка соединения (ответ "pong")
@@ -152,22 +165,22 @@ async def websocket_endpoint(websocket: WebSocket):
     - "disconnect" - отключение от сервера
     """
     await websocket.accept()
-    
+
     auth_data = await get_websocket_auth(websocket, security)
     if not auth_data:
         return
-    
+
     user_id = auth_data["user_id"]
     username = auth_data["username"]
-    
+
     await websocket_manager.connect(websocket, user_id, username)
 
     try:
         while True:
             message = await websocket.receive_json()
-            
+
             message_type = message.get("type")
-            
+
             if message_type == "message":
                 content = message.get("content") or message.get("message", "")
                 if content:
@@ -184,19 +197,19 @@ async def websocket_endpoint(websocket: WebSocket):
                         "is_self": True,
                         "timestamp": datetime.now().isoformat()
                     })
-                
+
             elif message_type == "ping":
                 await websocket.send_json({
                     "type": "pong",
                     "timestamp": message.get("timestamp")
                 })
-                
+
             elif message_type == "clear":
                 await websocket_manager.clear_history(user_id, username)
-                
+
             elif message_type == "disconnect":
                 break
-                
+
             else:
                 await websocket.send_json({
                     "type": "error",

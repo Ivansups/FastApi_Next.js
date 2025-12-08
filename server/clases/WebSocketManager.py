@@ -1,14 +1,17 @@
-from fastapi import WebSocket
-from typing import Dict, List
 from datetime import datetime
 
+from fastapi import WebSocket
+
+
 class ChatMessage:
-    def __init__(self, message: str, sender_id: str, sender_username: str, timestamp: datetime = None):
+    def __init__(
+        self, message: str, sender_id: str, sender_username: str, timestamp: datetime = None
+    ):
         self.message = message
         self.sender_id = sender_id
         self.sender_username = sender_username
         self.timestamp = timestamp or datetime.now()
-    
+
     def to_dict(self):
         return {
             "message": self.message,
@@ -19,10 +22,10 @@ class ChatMessage:
 
 class WebSocketManager:
     def __init__(self):
-        self.active_connections: Dict[str, WebSocket] = {}
-        self.websocket_to_user: Dict[WebSocket, str] = {}
-        self.user_info: Dict[str, Dict[str, str]] = {}
-        self.chat_history: List[ChatMessage] = []
+        self.active_connections: dict[str, WebSocket] = {}
+        self.websocket_to_user: dict[WebSocket, str] = {}
+        self.user_info: dict[str, dict[str, str]] = {}
+        self.chat_history: list[ChatMessage] = []
         self.max_history = 100
 
     async def connect(self, websocket: WebSocket, user_id: str, username: str):
@@ -33,11 +36,11 @@ class WebSocketManager:
             except Exception:
                 pass
             self.websocket_to_user.pop(old_websocket, None)
-        
+
         self.active_connections[user_id] = websocket
         self.websocket_to_user[websocket] = user_id
         self.user_info[user_id] = {"username": username}
-        
+
         try:
             await websocket.send_json({
                 "type": "connection",
@@ -45,7 +48,7 @@ class WebSocketManager:
                 "user_id": user_id,
                 "username": username
             })
-            
+
             if self.chat_history:
                 await websocket.send_json({
                     "type": "history",
@@ -81,10 +84,10 @@ class WebSocketManager:
         """Отправляет сообщение всем подключенным пользователям, кроме отправителя"""
         chat_msg = ChatMessage(message, sender_id, sender_username)
         self.chat_history.append(chat_msg)
-        
+
         if len(self.chat_history) > self.max_history:
             self.chat_history = self.chat_history[-self.max_history:]
-        
+
         for user_id, websocket in self.active_connections.items():
             if user_id != sender_id:
                 try:
@@ -97,11 +100,11 @@ class WebSocketManager:
                     })
                 except Exception:
                     pass
-    
+
     async def clear_history(self, cleared_by_id: str, cleared_by_username: str):
         """Очищает историю чата и уведомляет всех пользователей"""
         self.chat_history = []
-        
+
         for user_id, websocket in self.active_connections.items():
             try:
                 await websocket.send_json({
@@ -111,7 +114,7 @@ class WebSocketManager:
                 })
             except Exception:
                 pass
-    
+
     def get_connected_count(self) -> int:
         """Возвращает количество подключенных пользователей"""
         return len(self.active_connections)

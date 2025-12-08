@@ -4,8 +4,14 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsi
 
 const COLORS = ['#8b5cf6', '#a78bfa', '#c4b5fd', '#ddd6fe', '#ede9fe'];
 
+interface ChartDataPoint {
+  name: string;
+  value: number;
+  [key: string]: string | number;
+}
+
 interface StatsChartProps {
-  data: any[];
+  data: ChartDataPoint[];
   type?: 'line' | 'bar' | 'pie';
   dataKey?: string;
 }

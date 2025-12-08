@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { WebSocketMessage } from '@/types/websocket';
 import BackButton from '@/components/BackButton';
 
@@ -11,14 +11,20 @@ export default function Chat({ token }: { token?: string }) {
   const [error, setError] = useState<string | null>(null);
   const wsRef = useRef<WebSocket | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const tokenRef = useRef(token);
 
-  const connect = () => {
+  useEffect(() => {
+    tokenRef.current = token;
+  }, [token]);
+
+  const connect = useCallback(() => {
     if (wsRef.current?.readyState === WebSocket.OPEN) {
       return;
     }
 
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const tokenParam = token ? `?token=${encodeURIComponent(token)}` : '';
+    const currentToken = tokenRef.current;
+    const tokenParam = currentToken ? `?token=${encodeURIComponent(currentToken)}` : '';
     const wsUrl = `${protocol}//${window.location.hostname}:8000/ws${tokenParam}`;
     
     try {
@@ -80,16 +86,16 @@ export default function Chat({ token }: { token?: string }) {
       console.error('Error creating WebSocket:', err);
       setError('Не удалось создать соединение');
     }
-  };
+  }, []);
 
-  const disconnect = () => {
+  const disconnect = useCallback(() => {
     if (wsRef.current) {
       wsRef.current.close();
       wsRef.current = null;
       setIsConnected(false);
       setChatMessages((prev) => [...prev, '✗ Отключено']);
     }
-  };
+  }, []);
 
   const clearChat = () => {
     if (!isConnected || !wsRef.current) {
@@ -148,11 +154,16 @@ export default function Chat({ token }: { token?: string }) {
   };
 
   useEffect(() => {
-    connect();
+    // Используем setTimeout для асинхронного вызова, чтобы избежать синхронного setState в эффекте
+    const timeoutId = setTimeout(() => {
+      connect();
+    }, 0);
+    
     return () => {
+      clearTimeout(timeoutId);
       disconnect();
     };
-  }, []);
+  }, [connect, disconnect]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });

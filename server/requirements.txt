@@ -26,3 +26,5 @@ python-decouple==3.8
 # redis==5.1.1
 # hiredis==2.3.2
 
+# Linting
+ruff==0.8.4

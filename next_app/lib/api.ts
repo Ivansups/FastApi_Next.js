@@ -39,7 +39,7 @@ export default class Api {
         if (isJson) {
             try {
                 data = await response.json();
-            } catch (error) {
+            } catch {
                 const text = await response.text();
                 data = { error: text || 'Invalid JSON response' };
             }
@@ -81,7 +81,7 @@ export default class Api {
         if (isJson) {
             try {
                 data = await response.json();
-            } catch (error) {
+            } catch {
                 const text = await response.text();
                 data = { 
                     error: text || 'Invalid JSON response',

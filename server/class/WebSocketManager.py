@@ -1,11 +1,11 @@
+
 from fastapi import WebSocket
-from authx.config import AuthXConfig
-from typing import Dict
+
 
 class WebSocketManager:
     def __init__(self):
-        self.active_connections: Dict[str, WebSocket] = {}
-        self.websocket_to_user: Dict[WebSocket, str] = {}
+        self.active_connections: dict[str, WebSocket] = {}
+        self.websocket_to_user: dict[WebSocket, str] = {}
 
     async def connect(self, websocket: WebSocket, user_id: str):
         await websocket.accept()

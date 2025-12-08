@@ -1,41 +1,12 @@
 'use client';
 
-import { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 // import StatsChart from '@/components/StatsChart'; // Временно отключено - требуется установка recharts
 import BackButton from '@/components/BackButton';
 import styles from './page.module.css';
 
-// Пример данных для графиков
-const lineData = [
-  { name: 'Янв', value: 400, users: 240 },
-  { name: 'Фев', value: 300, users: 139 },
-  { name: 'Мар', value: 500, users: 280 },
-  { name: 'Апр', value: 278, users: 190 },
-  { name: 'Май', value: 189, users: 320 },
-  { name: 'Июн', value: 239, users: 280 },
-];
-
-const barData = [
-  { name: 'Пн', value: 65 },
-  { name: 'Вт', value: 59 },
-  { name: 'Ср', value: 80 },
-  { name: 'Чт', value: 81 },
-  { name: 'Пт', value: 56 },
-  { name: 'Сб', value: 55 },
-  { name: 'Вс', value: 40 },
-];
-
-const pieData = [
-  { name: 'Категория A', value: 400 },
-  { name: 'Категория B', value: 300 },
-  { name: 'Категория C', value: 200 },
-  { name: 'Категория D', value: 100 },
-];
-
 export default function DashboardPage() {
-  const [chartType, setChartType] = useState<'line' | 'bar' | 'pie'>('line');
 
   return (
     <div className={styles.dashboard}>
@@ -108,13 +79,13 @@ export default function DashboardPage() {
       </div>
 
       <div className={styles.actions}>
-        <Button variant="primary" onClick={() => setChartType('line')}>
+        <Button variant="primary" onClick={() => {}}>
           Линейный график
         </Button>
-        <Button variant="secondary" onClick={() => setChartType('bar')}>
+        <Button variant="secondary" onClick={() => {}}>
           Столбчатая диаграмма
         </Button>
-        <Button variant="secondary" onClick={() => setChartType('pie')}>
+        <Button variant="secondary" onClick={() => {}}>
           Круговая диаграмма
         </Button>
       </div>

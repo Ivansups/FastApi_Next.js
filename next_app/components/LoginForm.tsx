@@ -30,7 +30,7 @@ export default function LoginForm() {
             } else {
                 setMessage({ type: 'error', text: 'Internal server error' });
             }
-        } catch (error) {
+        } catch {
             setMessage({ type: 'error', text: 'An error occurred' });
         } finally {
             setLoading(false);

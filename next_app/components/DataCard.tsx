@@ -6,7 +6,7 @@ interface DataCardProps {
     index: number;
 }
 
-export default function DataCard({ data, index }: DataCardProps) {
+export default function DataCard({ data }: DataCardProps) {
     return (
         <div className={styles['data-card']}>
             <div className={styles['data-card__key']}>
