@@ -24,13 +24,15 @@ export default class Api {
         const headers: HeadersInit = {
             'Content-Type': 'application/json',
         };
-        
+
+        // Если токен пришёл с сервера Next, пробрасываем его в Cookie
         if (token) {
             headers['Cookie'] = `access_token=${token}`;
         }
-        
+
         const response = await fetch(`${this.baseUrl}/protected`, {
-            headers: headers,
+            headers,
+            credentials: 'include',
         })        
         let data;
         const contentType = response.headers.get('content-type');
@@ -59,11 +61,10 @@ export default class Api {
         const headers: HeadersInit = {
             'Content-Type': 'application/json',
         };
-        
+
         if (token) {
             headers['Cookie'] = `access_token=${token}`;
         }
-        
         const url = new URL(`${this.baseUrl}/data`);
         url.searchParams.set('page', page.toString());
         url.searchParams.set('limit', limit.toString());
@@ -71,7 +72,7 @@ export default class Api {
         const response = await fetch(url.toString(), {
             method: 'GET',
             credentials: 'include',
-            headers: headers,
+            headers,
         });
         
         let data;

@@ -97,8 +97,8 @@ def login(credentials: User, response: Response):
             config.JWT_ACCESS_COOKIE_NAME,
             token,
             httponly=True,  # Защита от XSS
-            samesite='lax',  # Для работы с CORS
-            secure=False,  # True in production with HTTPS
+            samesite='lax',  # localhost:3000 и localhost:8000 считаются same-site
+            secure=False,  # включить True в production с HTTPS
             max_age=86400  # 1 день в секундах
         )
         return {"message": "Login successful"}

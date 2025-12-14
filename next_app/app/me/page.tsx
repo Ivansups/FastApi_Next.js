@@ -39,6 +39,9 @@ export default async function MePage() {
                     <Link className={styles['me-page__link']} href="/chat">
                         Чат (WebSocket)
                     </Link>
+                    <Link className={styles['me-page__link']} href="/payment">
+                        Оплата
+                    </Link>
                 </div>
             </div>
         </div>

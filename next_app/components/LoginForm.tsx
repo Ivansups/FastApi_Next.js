@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { auth } from "@/services/auth";
 import styles from "@/app/login/page.module.css";
 import { useRouter } from 'next/navigation';
 
@@ -21,14 +20,25 @@ export default function LoginForm() {
         }
         
         try {
-            const response = await auth(credentials);
-            if (response.status === 200) {
-                setMessage({ type: 'success', text: response.data.message || 'Login successful' });
+            const response = await fetch(
+                `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/login`,
+                {
+                    method: 'POST',
+                    credentials: 'include', // важно для установки httponly cookie в браузер
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(credentials),
+                }
+            );
+
+            if (response.ok) {
+                const data = await response.json().catch(() => ({}));
+                setMessage({ type: 'success', text: data.message || 'Login successful' });
                 router.replace('/me');
             } else if (response.status === 401) {
                 setMessage({ type: 'error', text: 'Invalid credentials' });
             } else {
-                setMessage({ type: 'error', text: 'Internal server error' });
+                const text = await response.text().catch(() => '');
+                setMessage({ type: 'error', text: text || 'Internal server error' });
             }
         } catch {
             setMessage({ type: 'error', text: 'An error occurred' });
